@@ -1,0 +1,1 @@
+out/host/linux-x86/bin/mkbootfs out/target/product/sabresd_6dq/root | out/host/linux-x86/bin/minigzip > out/target/product/sabresd_6dq/ramdisk.img

@@ -1,0 +1,2 @@
+#usage: $1 sytem_dir $2 system.img
+mkuserimg.sh $1 $2 ext4 system 293601280 /home/mobz/indoor/imx6dl/out/target/product/sabresd_6dq/root/file_contexts

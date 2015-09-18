@@ -1,0 +1,5 @@
+#do it in the kernel top dir
+#make O=/home/mobz/lw/imx6dl/kobj menuconfig
+#make O=/home/mobz/indoor/imx6dl/kobj menuconfig
+make O=/home/mobz/indoor/imx6dl/out/target/product/sabresd_6dq/obj/KERNEL menuconfig
+

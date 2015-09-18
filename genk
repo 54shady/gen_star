@@ -1,0 +1,24 @@
+ANDROID_TOP_DIR=`pwd`
+OUT_PUT_DIR="out/target/product/sabresd_6dq"
+KERNEL_OBJ_DIR="out/target/product/sabresd_6dq/obj/KERNEL"
+
+#cp kernel_imx/firmware/imx/sdma/sdma-imx6q-to1.bin $OUT_PUT_DIR/obj/KERNEL/firmware/imx/sdma/
+
+#make O=$ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL -C kernel_imx -j8  ARCH=arm CROSS_COMPILE=$ANDROID_TOP_DIR/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-  imx6_andriod_defconfig
+
+make O=$ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL -C kernel_imx -j8 uImage modules ARCH=arm CROSS_COMPILE=$ANDROID_TOP_DIR/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
+
+#make -C kernel_imx -j4 uImage modules ARCH=arm CROSS_COMPILE=/home/zhangt/lw/push_dir/imx6dl/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
+
+#rm -f include/config/kernel.release
+
+#echo "3.0.35$(/bin/bash /home/zhangt/lw/push_dir/imx6dl/kernel_imx/scripts/setlocalversion /home/zhangt/lw/push_dir/imx6dl/kernel_imx)" > include/config/kernel.release
+
+install -D $KERNEL_OBJ_DIR/arch/arm/boot/uImage  $OUT_PUT_DIR/uImage
+install -D $KERNEL_OBJ_DIR/arch/arm/boot/zImage  $OUT_PUT_DIR/kernel
+
+out/host/linux-x86/bin/acp -fp device/fsl/sabresd_6dq/fstab.freescale $OUT_PUT_DIR/root/fstab.freescale
+
+echo "Target boot image: $OUT_PUT_DIR/boot.img"
+
+out/host/linux-x86/bin/mkbootimg  --kernel $OUT_PUT_DIR/kernel --ramdisk $OUT_PUT_DIR/ramdisk.img --cmdline "console=ttymxc0,115200 init=/init video=mxcfb0:dev=ldb,bpp=32 video=mxcfb1:off video=mxcfb2:off fbmem=10M fb0base=0x27b00000 vmalloc=400M androidboot.console=ttymxc0 androidboot.hardware=freescale" --base 0x10800000  --output $OUT_PUT_DIR/boot.img
