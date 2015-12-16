@@ -1,5 +1,9 @@
-#do it in the kernel top dir
-#make O=/home/mobz/lw/imx6dl/kobj menuconfig
-#make O=/home/mobz/indoor/imx6dl/kobj menuconfig
-make O=/home/mobz/indoor/imx6dl/out/target/product/sabresd_6dq/obj/KERNEL menuconfig
+#Do it at the top of the android dir
+#make menuconfig
 
+ANDROID_TOP_DIR=$PWD
+OUT_PUT_DIR="out/target/product/sabresd_6dq"
+KERNEL_OBJ_DIR="out/target/product/sabresd_6dq/obj/KERNEL"
+cp=$ANDROID_TOP_DIR/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
+
+make ARCH=arm CROSS_COMPILE=$cp O=$ANDROID_TOP_DIR/$KERNEL_OBJ_DIR -C kernel_imx menuconfig
