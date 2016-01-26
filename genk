@@ -1,25 +1,30 @@
 ANDROID_TOP_DIR=$PWD
 OUT_PUT_DIR="out/target/product/sabresd_6dq"
 KERNEL_OBJ_DIR="out/target/product/sabresd_6dq/obj/KERNEL"
-
-#mkdir -p out/target/product/sabresd_6dq/obj/KERNEL
-
 cp=$ANDROID_TOP_DIR/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
-#cp kernel_imx/firmware/imx/sdma/sdma-imx6q-to1.bin $OUT_PUT_DIR/obj/KERNEL/firmware/imx/sdma/
+#make menuconfig
+#make -C kernel_imx imx_v7_android_defconfig ARCH=arm CROSS_COMPILE=`pwd`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- LOADADDR=0x10008000
 
-#make ARCH=arm CROSS_COMPILE=$cp O=$ANDROID_TOP_DIR/$KERNEL_OBJ_DIR -C kernel_imx imx6_android_defconfig
+#copy the dot config file
+#install -D kernel_imx/.config $OUT_PUT_DIR/.config
 
-make O=$ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL -C $ANDROID_TOP_DIR/kernel_imx -j8 uImage modules ARCH=arm CROSS_COMPILE=$cp
+#make kernel
+make -C kernel_imx -j8 uImage ARCH=arm CROSS_COMPILE=$cp LOADADDR=0x10008000 O=$ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL
 
-#rm -f include/config/kernel.release
+#make dt
+make -C kernel_imx dtbs ARCH=arm CROSS_COMPILE=$cp LOADADDR=0x10008000 O=$ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL
 
-#echo "3.0.35$(/bin/bash /home/zhangt/lw/push_dir/imx6dl/kernel_imx/scripts/setlocalversion /home/zhangt/lw/push_dir/imx6dl/kernel_imx)" > include/config/kernel.release
+install -D $ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL/arch/arm/boot/zImage  $OUT_PUT_DIR/kernel
+install -D $ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL/arch/arm/boot/dts/imx6dl-sabresd.dtb  $OUT_PUT_DIR/
 
-install -D $ANDROID_TOP_DIR/$KERNEL_OBJ_DIR/arch/arm/boot/uImage  $ANDROID_TOP_DIR/$OUT_PUT_DIR/uImage
-install -D $ANDROID_TOP_DIR/$KERNEL_OBJ_DIR/arch/arm/boot/zImage  $ANDROID_TOP_DIR/$OUT_PUT_DIR/kernel
+#make modules
+#make -C kernel_imx modules ARCH=arm CROSS_COMPILE=`pwd`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- LOADADDR=0x10008000
 
-$ANDROID_TOP_DIR/out/host/linux-x86/bin/acp -fp $ANDROID_TOP_DIR/device/fsl/sabresd_6dq/fstab.freescale $ANDROID_TOP_DIR/$OUT_PUT_DIR/root/fstab.freescale
+#make bootimg
+out/host/linux-x86/bin/mkbootimg  --kernel $OUT_PUT_DIR/kernel --ramdisk $OUT_PUT_DIR/ramdisk.img --cmdline "console=ttymxc0,115200 init=/init video=mxcfb0:dev=ldb,bpp=32 video=mxcfb1:off video=mxcfb2:off video=mxcfb3:off vmalloc=256M androidboot.console=ttymxc0 consoleblank=0 androidboot.hardware=freescale cma=384M" --base 0x14000000 --second $OUT_PUT_DIR/imx6dl-sabresd.dtb  --output $OUT_PUT_DIR/boot.img
 
-echo "Target boot image: $OUT_PUT_DIR/boot.img"
+#sign
+#out/host/linux-x86/bin/boot_signer /boot $OUT_PUT_DIR/boot.img build/target/product/security/verity.pk8 build/target/product/security/verity.x509.pem $OUT_PUT_DIR/boot.img
 
-$ANDROID_TOP_DIR/out/host/linux-x86/bin/mkbootimg  --kernel $ANDROID_TOP_DIR/$OUT_PUT_DIR/kernel --ramdisk $ANDROID_TOP_DIR/$OUT_PUT_DIR/ramdisk.img --cmdline "console=ttymxc0,115200 init=/init video=mxcfb0:dev=ldb,bpp=32 video=mxcfb1:off video=mxcfb2:off fbmem=10M fb0base=0x27b00000 vmalloc=400M androidboot.console=ttymxc0 androidboot.hardware=freescale" --base 0x10800000  --output $ANDROID_TOP_DIR/$OUT_PUT_DIR/boot.img
+#rename bootimg
+#cp -f $OUT_PUT_DIR/boot.img $OUT_PUT_DIR/boot-imx6dl.img
