@@ -1,30 +1,18 @@
-ANDROID_TOP_DIR=$PWD
-OUT_PUT_DIR="out/target/product/sabresd_6dq"
-KERNEL_OBJ_DIR="out/target/product/sabresd_6dq/obj/KERNEL"
-cp=$ANDROID_TOP_DIR/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
-#make menuconfig
-#make -C kernel_imx imx_v7_android_defconfig ARCH=arm CROSS_COMPILE=`pwd`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- LOADADDR=0x10008000
+###### compile kernel ###############
+#rm -rvf  op/obj/KERNEL/drivers/gpu/arm/mali400/ump/linux
+#rm -rvf  op/obj/KERNEL/drivers/gpu/arm/mali400/mali/linux
+mkdir -p op/obj/KERNEL/drivers/gpu/arm/mali400/ump/linux
+mkdir -p op/obj/KERNEL/drivers/gpu/arm/mali400/mali/linux
+mkdir -p op/obj/KERNEL/drivers/net/wireless/rockchip_wlan/wifi_sys
 
-#copy the dot config file
-#install -D kernel_imx/.config $OUT_PUT_DIR/.config
+cp -rf kernel/logo.bmp op/obj/KERNEL/
+cp -rfd kernel/drivers/gpu/arm/mali400/ump/arch-default op/obj/KERNEL/drivers/gpu/arm/mali400/ump/
+cp -rfd kernel/drivers/gpu/arm/mali400/ump/linux/license op/obj/KERNEL/drivers/gpu/arm/mali400/ump/linux/license
+cp -rfd kernel/drivers/gpu/arm/mali400/mali/linux/license op/obj/KERNEL/drivers/gpu/arm/mali400/mali/linux/license
 
-#make kernel
-make -C kernel_imx -j8 uImage ARCH=arm CROSS_COMPILE=$cp LOADADDR=0x10008000 O=$ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL
+#make config
+#make -C kernel fireprime_defconfig  O=/home/zerowaylin/fireprimes/out/target/product/rk312x/obj/KERNEL CROSS_COMPILE=/home/zerowaylin/fireprimes/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- ARCH=arm
 
-#make dt
-make -C kernel_imx dtbs ARCH=arm CROSS_COMPILE=$cp LOADADDR=0x10008000 O=$ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL
-
-install -D $ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL/arch/arm/boot/zImage  $OUT_PUT_DIR/kernel
-install -D $ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL/arch/arm/boot/dts/imx6dl-sabresd.dtb  $OUT_PUT_DIR/
-
-#make modules
-#make -C kernel_imx modules ARCH=arm CROSS_COMPILE=`pwd`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- LOADADDR=0x10008000
-
-#make bootimg
-out/host/linux-x86/bin/mkbootimg  --kernel $OUT_PUT_DIR/kernel --ramdisk $OUT_PUT_DIR/ramdisk.img --cmdline "console=ttymxc0,115200 init=/init video=mxcfb0:dev=ldb,bpp=32 video=mxcfb1:off video=mxcfb2:off video=mxcfb3:off vmalloc=256M androidboot.console=ttymxc0 consoleblank=0 androidboot.hardware=freescale cma=384M" --base 0x14000000 --second $OUT_PUT_DIR/imx6dl-sabresd.dtb  --output $OUT_PUT_DIR/boot.img
-
-#sign
-#out/host/linux-x86/bin/boot_signer /boot $OUT_PUT_DIR/boot.img build/target/product/security/verity.pk8 build/target/product/security/verity.x509.pem $OUT_PUT_DIR/boot.img
-
-#rename bootimg
-#cp -f $OUT_PUT_DIR/boot.img $OUT_PUT_DIR/boot-imx6dl.img
+#make
+make -C kernel -j8 rk3128-fireprime.img  O=/home/zerowaylin/fireprimes/out/target/product/rk312x/obj/KERNEL CROSS_COMPILE=/home/zerowaylin/fireprimes/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- ARCH=arm
+###### compile kernel ###############
