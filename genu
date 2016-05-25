@@ -1,0 +1,22 @@
+#编译生成目录
+OUT_PUT_DIR="$PWD/out/target/product/rk312x/bootloader"
+
+#指定交叉编译工具
+cp=/home/zerowaylin/fireprimes/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
+ARCH=arm
+
+#简单判断
+if [ ! -d $OUT_PUT_DIR ]
+then
+	echo "make destination directory ready"
+	mkdir -p $OUT_PUT_DIR/tools/rk_tools
+else
+	echo "every thing is done well, let's make the uboot"
+fi
+
+#RK打包工具
+cp -rvfd $PWD/u-boot/tools/rk_tools $OUT_PUT_DIR/tools/
+
+#配置和编译
+make -C u-boot O=$OUT_PUT_DIR ARCH=arm CROSS_COMPILE=$cp rk3128_box_defconfig
+make -C u-boot -j8 ARCH=arm CROSS_COMPILE=$cp O=$OUT_PUT_DIR
