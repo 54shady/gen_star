@@ -1,20 +1,33 @@
 ###### compile kernel ###############
-#rm -rvf  op/obj/KERNEL/drivers/gpu/arm/mali400/ump/linux
-#rm -rvf  op/obj/KERNEL/drivers/gpu/arm/mali400/mali/linux
-mkdir -p op/obj/KERNEL/drivers/gpu/arm/mali400/ump/linux
-mkdir -p op/obj/KERNEL/drivers/gpu/arm/mali400/mali/linux
-mkdir -p op/obj/KERNEL/drivers/net/wireless/rockchip_wlan/wifi_sys
+#rm -rvf kobj/drivers/gpu/arm/mali400/ump/linux
+#rm -rvf kobj/drivers/gpu/arm/mali400/mali/linux
+mkdir -p kobj/drivers/gpu/arm/mali400/ump/linux
+mkdir -p kobj/drivers/gpu/arm/mali400/mali/linux
+mkdir -p kobj/drivers/net/wireless/rockchip_wlan/wifi_sys
+mkdir -p kobj/drivers/gpu/arm/mali400/mali/include/linux/mali
 
 cp -rf kernel/logo.bmp op/obj/KERNEL/
 cp -rfd kernel/drivers/gpu/arm/mali400/ump/arch-default op/obj/KERNEL/drivers/gpu/arm/mali400/ump/
 cp -rfd kernel/drivers/gpu/arm/mali400/ump/linux/license op/obj/KERNEL/drivers/gpu/arm/mali400/ump/linux/license
 cp -rfd kernel/drivers/gpu/arm/mali400/mali/linux/license op/obj/KERNEL/drivers/gpu/arm/mali400/mali/linux/license
+cp kernel/drivers/gpu/arm/mali400/mali/include/linux/mali/mali_utgard_uk_types.h kobj/drivers/gpu/arm/mali400/mali/include/linux/mali/
+cp kernel/logo.bmp kobj/
+
+#make menuconfig
+#make -C kernel O=/home/zerowaytp/src/fireprimes/out/target/product/rk312x/obj/KERNEL CROSS_COMPILE=/home/zerowaytp/src/fireprimes/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- ARCH=arm menuconfig
 
 #make config
-#make -C kernel fireprime_defconfig  O=/home/zerowaylin/fireprimes/out/target/product/rk312x/obj/KERNEL CROSS_COMPILE=/home/zerowaylin/fireprimes/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- ARCH=arm
+#make -C kernel fireprime_defconfig  O=/home/zerowaytp/src/fireprimes/out/target/product/rk312x/obj/KERNEL CROSS_COMPILE=/home/zerowaytp/src/fireprimes/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- ARCH=arm
 
 #make
-make -C kernel -j8 rk3128-fireprime.img  O=/home/zerowaylin/fireprimes/out/target/product/rk312x/obj/KERNEL CROSS_COMPILE=/home/zerowaylin/fireprimes/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- ARCH=arm
+make -C kernel -j9 rk3128-fireprime.img  O=/home/zerowaytp/src/fireprimes/out/target/product/rk312x/obj/KERNEL CROSS_COMPILE=/home/zerowaytp/src/fireprimes/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- ARCH=arm
+
+#make modules
+make -C kernel -j9 O=/home/zerowaytp/src/fireprimes/out/target/product/rk312x/obj/KERNEL CROSS_COMPILE=/home/zerowaytp/src/fireprimes/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- ARCH=arm modules
+
+#make module install
+#make INSTALL_MOD_PATH=/home/zerowaytp/src/fireprimes/out/target/product/rk312x/obj/KERNEL/modules_install modules_install
+
 ###### compile kernel ###############
 
 ############ start make images #################
@@ -47,26 +60,13 @@ echo $KERNEL_SRC_PATH
 
 BOOT_OTA="ota"
 
-cp -rfv $KERNEL_SRC_PATH/arch/arm/boot/zImage /home/zerowaylin/fireprimes/out/target/product/rk312x/kernel
+cp -rfv $KERNEL_SRC_PATH/arch/arm/boot/zImage /home/zerowaytp/src/fireprimes/out/target/product/rk312x/kernel
 
 echo -n "create boot.img without kernel... "
 [ -d $OUT/root ] && \
 mkbootfs $OUT/root | minigzip > $OUT/ramdisk.img && \
 truncate -s "%4" $OUT/ramdisk.img && \
 rkst/mkkrnlimg $OUT/ramdisk.img $IMAGE_PATH/boot.img >/dev/null
-echo "done."
-
-echo -n "create system.img... "
-system_size=`ls -l $OUT/system.img | awk '{print $5;}'`
-[ $system_size -gt "0" ] || { echo "Please make first!!!" && exit 1; }
-MAKE_EXT4FS_ARGS=" -L system -S $OUT/root/file_contexts -a system $IMAGE_PATH/system.img $OUT/system"
-ok=0
-while [ "$ok" = "0" ]; do
-	make_ext4fs -l $system_size $MAKE_EXT4FS_ARGS >/dev/null 2>&1 &&
-	tune2fs -c -1 -i 0 $IMAGE_PATH/system.img >/dev/null 2>&1 &&
-	ok=1 || system_size=$(($system_size + 5242880))
-done
-e2fsck -fyD $IMAGE_PATH/system.img >/dev/null 2>&1 || true
 echo "done."
 
 echo "Copy kenrel.img..."
