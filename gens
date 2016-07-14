@@ -1,0 +1,17 @@
+# make systemimage in the top directory of android will genarate the system.img
+# make systemimage -j17 -n
+#
+# export the toolchain path
+export PATH=$PATH:/home/zerowaylin/push/fireprimes/out/host/linux-x86/bin
+
+# gen system.img
+out/host/linux-x86/bin/mkuserimg.sh -s out/target/product/rk312x/system out/target/product/rk312x/obj/PACKAGING/systemimage_intermediates/system.img ext4 system 1073741824 out/target/product/rk312x/root/file_contexts
+
+# unpack the system.img to ext4 format image
+#out/host/linux-x86/bin/simg2img out/target/product/rk312x/obj/PACKAGING/systemimage_intermediates/system.img system.ext4.img
+
+# make a local directory for mount
+#mkdir mysystem
+
+# mount the ext4 image to local directory
+#sudo mount -t ext4 -o loop system.ext4.img mysystem
