@@ -1,0 +1,9 @@
+ANDROID_TOP_DIR="/home/zerowaytp/src/fireprimes"
+OUT_PUT_DIR="out/target/product/rk312x"
+rkimage_out_dir="rockdev/Image-rk312x"
+MKBOOTFS=out/host/linux-x86/bin/mkbootfs
+MINIGZIP=out/host/linux-x86/bin/minigzip
+
+$MKBOOTFS $ANDROID_TOP_DIR/$OUT_PUT_DIR/root | $MINIGZIP > $ANDROID_TOP_DIR/$OUT_PUT_DIR/ramdisk.img
+truncate -s "%4" $ANDROID_TOP_DIR/$OUT_PUT_DIR/ramdisk.img
+rkst/mkkrnlimg  $ANDROID_TOP_DIR/$OUT_PUT_DIR/ramdisk.img $ANDROID_TOP_DIR/$rkimage_out_dir/boot.img
