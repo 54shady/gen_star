@@ -1,0 +1,21 @@
+echo "Target system fs image: out/target/product/hikey/obj/PACKAGING/systemimage_intermediates/system.img"
+
+mkdir -p out/target/product/hikey/obj/PACKAGING/systemimage_intermediates/ out/target/product/hikey/obj/PACKAGING/systemimage_intermediates && rm -rf out/target/product/hikey/obj/PACKAGING/systemimage_intermediates/system_image_info.txt
+
+echo "fs_type=ext4" >>  out/target/product/hikey/obj/PACKAGING/systemimage_intermediates/system_image_info.txt
+echo "system_size=1342177280" >>  out/target/product/hikey/obj/PACKAGING/systemimage_intermediates/system_image_info.txt
+echo "userdata_size=1342177280" >>  out/target/product/hikey/obj/PACKAGING/systemimage_intermediates/system_image_info.txt
+echo "cache_fs_type=ext4" >>  out/target/product/hikey/obj/PACKAGING/systemimage_intermediates/system_image_info.txt
+echo "cache_size=268435456" >>  out/target/product/hikey/obj/PACKAGING/systemimage_intermediates/system_image_info.txt
+echo "extfs_sparse_flag=-s" >>  out/target/product/hikey/obj/PACKAGING/systemimage_intermediates/system_image_info.txt
+echo "selinux_fc=out/target/product/hikey/root/file_contexts" >>  out/target/product/hikey/obj/PACKAGING/systemimage_intermediates/system_image_info.txt
+echo "skip_fsck=true" >>  out/target/product/hikey/obj/PACKAGING/systemimage_intermediates/system_image_info.txt;
+
+PATH=out/host/linux-x86/bin/:$PATH ./build/tools/releasetools/build_image.py out/target/product/hikey/system out/target/product/hikey/obj/PACKAGING/systemimage_intermediates/system_image_info.txt out/target/product/hikey/obj/PACKAGING/systemimage_intermediates/system.img || ( echo "Out of space? the tree size of out/target/product/hikey/system is (MB): " 1>&2 ; du -sm out/target/product/hikey/system 1>&2; echo "The max is $(( 1342177280 / 1048576 )) MB." 1>&2 ; mkdir -p out/dist; cp out/target/product/hikey/installed-files.txt out/dist/installed-files-rescued.txt; exit 1 )
+
+echo "Install system fs image: out/target/product/hikey/system.img"
+
+# mkdir -p out/target/product/hikey/
+out/host/linux-x86/bin/acp -fp out/target/product/hikey/obj/PACKAGING/systemimage_intermediates/system.img out/target/product/hikey/system.img
+
+size=$(for i in out/target/product/hikey/system.img ; do stat --format "%s" "$i" | tr -d '\n'; echo +; done; echo 0); total=$(( $( echo "$size" ) )); printname=$(echo -n "out/target/product/hikey/system.img " | tr " " +); img_blocksize=135168; twoblocks=$((img_blocksize * 2)); onepct=$(((((1384120320 / 100) - 1) / img_blocksize + 1) * img_blocksize)); reserve=$((twoblocks > onepct ? twoblocks : onepct)); maxsize=$((1384120320 - reserve)); echo "$printname maxsize=$maxsize blocksize=$img_blocksize total=$total reserve=$reserve"; if [ "$total" -gt "$maxsize" ]; then echo "error: $printname too large ($total > [1384120320 - $reserve])"; false; elif [ "$total" -gt $((maxsize - 32768)) ]; then echo "WARNING: $printname approaching size limit ($total now; limit $maxsize)"; fi
