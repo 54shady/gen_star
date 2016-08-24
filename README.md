@@ -1,7 +1,5 @@
-# gen_star
-generator all we need
+# gen_star for HiKey
 
-genc generator .config file
-genk generator kernel[boot.img]
-genr generator ramdisk.img
-gens generator system.img
+genk generator kernel
+
+genb generator boot.img ramdisk.img boot_fat.uefi.img

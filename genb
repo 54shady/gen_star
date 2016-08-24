@@ -1,0 +1,28 @@
+echo "Target ram disk: out/target/product/hikey/ramdisk.img"
+out/host/linux-x86/bin/mkbootfs out/target/product/hikey/root | out/host/linux-x86/bin/minigzip > out/target/product/hikey/ramdisk.img
+
+# ln -sf /home/zeroway/HiKey/android/out/target/product/hikey/obj/kernel/arch/arm64/boot/Image out/target/product/hikey/kernel
+
+echo "Target boot image: out/target/product/hikey/boot.img"
+out/host/linux-x86/bin/mkbootimg  --kernel out/target/product/hikey/kernel --ramdisk out/target/product/hikey/ramdisk.img --cmdline "k3v2mem hisi_dma_print=0 vmalloc=484M no_irq_affinity loglevel=7 androidboot.hardware=hikey selinux=0" --base 0x07400000  --output out/target/product/hikey/boot.img
+
+# mkdir -p out/target/product/hikey/EFI/BOOT/
+
+# wget --progress=dot "http://builds.96boards.org/snapshots/hikey/linaro/uefi/`wget -q --no-check-certificate -O - https://ci.linaro.org/job/96boards-hikey-uefi/lastSuccessfulBuild/buildNumber`/AndroidFastbootApp.efi" -O out/target/product/hikey/fastboot.efi
+
+# wget --progress=dot "http://builds.96boards.org/snapshots/hikey/linaro/grub/latest"/grubaa64.efi -O out/target/product/hikey/grubaa64.efi
+
+# cp device/linaro/hikey/grub.cfg  out/target/product/hikey/EFI/BOOT/
+# cp out/target/product/hikey/grubaa64.efi  out/target/product/hikey/EFI/BOOT/
+# cp out/target/product/hikey/fastboot.efi  out/target/product/hikey/EFI/BOOT/
+
+dd if=/dev/zero of=out/target/product/hikey/boot_fat.uefi.img bs=512 count=98304
+mkfs.fat -n "boot" out/target/product/hikey/boot_fat.uefi.img
+
+mcopy -i  out/target/product/hikey/boot_fat.uefi.img out/target/product/hikey/obj/kernel/arch/arm64/boot/Image ::Image
+
+mcopy -i  out/target/product/hikey/boot_fat.uefi.img out/target/product/hikey/obj/kernel/arch/arm64/boot/hi6220-hikey.dtb ::hi6220-hikey.dtb
+
+mcopy -i out/target/product/hikey/boot_fat.uefi.img out/target/product/hikey/ramdisk.img ::ramdisk.img
+
+mcopy -s -i out/target/product/hikey/boot_fat.uefi.img out/target/product/hikey/EFI/ ::

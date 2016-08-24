@@ -1,30 +1,24 @@
-ANDROID_TOP_DIR=$PWD
-OUT_PUT_DIR="out/target/product/sabresd_6dq"
-KERNEL_OBJ_DIR="out/target/product/sabresd_6dq/obj/KERNEL"
-cp=$ANDROID_TOP_DIR/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
-#make menuconfig
-#make -C kernel_imx imx_v7_android_defconfig ARCH=arm CROSS_COMPILE=`pwd`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- LOADADDR=0x10008000
+#rm -rvf /home/zeroway/HiKey/android/out/target/product/hikey/obj/kernel
+#mkdir -p /home/zeroway/HiKey/android/out/target/product/hikey/obj/kernel
 
-#copy the dot config file
-#install -D kernel_imx/.config $OUT_PUT_DIR/.config
+KTP="/home/zeroway/HiKey/android/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-android-"
 
-#make kernel
-make -C kernel_imx -j8 uImage ARCH=arm CROSS_COMPILE=$cp LOADADDR=0x10008000 O=$ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL
+#export PATH=/home/zeroway/HiKey/android/gcc-linaro-aarch64-linux-gnu/bin:../out/host/linux-x86/bin:/opt/java-7-openjdk-amd64//bin:/home/zeroway/HiKey/android/out/host/linux-x86/bin:/home/zeroway/HiKey/android/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin:/home/zeroway/HiKey/android/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.8/bin:/home/zeroway/HiKey/android/development/scripts:/home/zeroway/HiKey/android/prebuilts/devtools/tools:/home/zeroway/HiKey/android/prebuilts/android-emulator/linux-x86_64:/opt/java-7-openjdk-amd64//bin:/opt/java-7-openjdk-amd64/bin/jre/bin:/usr/local/bin:/usr/bin:/bin:/opt/bin:/usr/x86_64-pc-linux-gnu/gcc-bin/4.9.3:/opt/toolschain/usr/local/arm/arm-2014.05/bin:/home/zeroway/Tools:/home/zeroway/android-studio/bin:/opt/android-sdk-linux/platform-tools:/sbin
 
-#make dt
-make -C kernel_imx dtbs ARCH=arm CROSS_COMPILE=$cp LOADADDR=0x10008000 O=$ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL
+LD="${KTP}ld.bfd"
 
-install -D $ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL/arch/arm/boot/zImage  $OUT_PUT_DIR/kernel
-install -D $ANDROID_TOP_DIR/$OUT_PUT_DIR/obj/KERNEL/arch/arm/boot/dts/imx6dl-sabresd.dtb  $OUT_PUT_DIR/
+# /home/zeroway/HiKey/android/kernel/linaro/hisilicon/scripts/kconfig/merge_config.sh -m arch/arm64/configs/defconfig android/configs/android-base.cfg  android/configs/android-recommended.cfg && mv -f .config /home/zeroway/HiKey/android/out/target/product/hikey/obj/kernel/.merged.config && make -j1  O=/home/zeroway/HiKey/android/out/target/product/hikey/obj/kernel ARCH=arm64 KCONFIG_ALLCONFIG=/home/zeroway/HiKey/android/out/target/product/hikey/obj/kernel/.merged.config alldefconfig
 
-#make modules
-#make -C kernel_imx modules ARCH=arm CROSS_COMPILE=`pwd`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- LOADADDR=0x10008000
+# make   O=/home/zeroway/HiKey/android/out/target/product/hikey/obj/kernel ARCH=arm64 CROSS_COMPILE="${KTP}" KCFLAGS=" -fno-pic " LD="${LD}" Image
 
-#make bootimg
-out/host/linux-x86/bin/mkbootimg  --kernel $OUT_PUT_DIR/kernel --ramdisk $OUT_PUT_DIR/ramdisk.img --cmdline "console=ttymxc0,115200 init=/init video=mxcfb0:dev=ldb,bpp=32 video=mxcfb1:off video=mxcfb2:off video=mxcfb3:off vmalloc=256M androidboot.console=ttymxc0 consoleblank=0 androidboot.hardware=freescale cma=384M" --base 0x14000000 --second $OUT_PUT_DIR/imx6dl-sabresd.dtb  --output $OUT_PUT_DIR/boot.img
+#make -C /home/zeroway/HiKey/android/out/target/product/hikey/obj/kernel KBUILD_SRC=/home/zeroway/HiKey/android/kernel/linaro/hisilicon -f /home/zeroway/HiKey/android/kernel/linaro/hisilicon/Makefile alldefconfig
 
-#sign
-#out/host/linux-x86/bin/boot_signer /boot $OUT_PUT_DIR/boot.img build/target/product/security/verity.pk8 build/target/product/security/verity.x509.pem $OUT_PUT_DIR/boot.img
+#make -C /home/zeroway/HiKey/android/out/target/product/hikey/obj/kernel KBUILD_SRC=/home/zeroway/HiKey/android/kernel/linaro/hisilicon -f /home/zeroway/HiKey/android/kernel/linaro/hisilicon/Makefile Image
 
-#rename bootimg
-#cp -f $OUT_PUT_DIR/boot.img $OUT_PUT_DIR/boot-imx6dl.img
+# make -C /home/zeroway/HiKey/android/kernel/linaro/hisilicon O=/home/zeroway/HiKey/android/out/target/product/hikey/obj/kernel ARCH=arm64 CROSS_COMPILE="${KTP}" KCFLAGS=" -fno-pic " LD="${LD}" alldefconfig
+
+make -C /home/zeroway/HiKey/android/kernel/linaro/hisilicon O=/home/zeroway/HiKey/android/out/target/product/hikey/obj/kernel ARCH=arm64 CROSS_COMPILE="${KTP}" KCFLAGS=" -fno-pic " LD="${LD}" Image -j17
+
+make -C /home/zeroway/HiKey/android/kernel/linaro/hisilicon O=/home/zeroway/HiKey/android/out/target/product/hikey/obj/kernel ARCH=arm64 CROSS_COMPILE="${KTP}" KCFLAGS=" -fno-pic " LD="${LD}" modules -j17
+
+make -C /home/zeroway/HiKey/android/kernel/linaro/hisilicon O=/home/zeroway/HiKey/android/out/target/product/hikey/obj/kernel ARCH=arm64 CROSS_COMPILE="${KTP}" KCFLAGS=" -fno-pic " LD="${LD}" dtbs -j17
