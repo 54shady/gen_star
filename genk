@@ -1,0 +1,22 @@
+#make O=out rockchip_defconfig
+
+mkdir -p out/drivers/gpu/arm/mali400/ump/linux
+mkdir -p out/drivers/gpu/arm/mali400/mali/linux
+mkdir -p out/drivers/net/wireless/rockchip_wlan/wifi_sys
+mkdir -p out/drivers/gpu/arm/mali400/mali/include/linux/mali
+
+mkdir -p out/drivers/gpu/arm/mali400/ump/arch-pb-virtex5-m400-4
+#mkdir -p out/drivers/gpu/arm/mali400/ump/arch/arch-pb-virtex5-m400-4
+
+cp -rfd logo.bmp out/
+cp -rfd drivers/gpu/arm/mali400/ump/arch-default out/drivers/gpu/arm/mali400/ump/
+cp -rfd drivers/gpu/arm/mali400/ump/linux/license out/drivers/gpu/arm/mali400/ump/linux/license
+cp -rfd drivers/gpu/arm/mali400/mali/linux/license out/drivers/gpu/arm/mali400/mali/linux/license
+cp drivers/gpu/arm/mali400/mali/include/linux/mali/mali_utgard_uk_types.h out/drivers/gpu/arm/mali400/mali/include/linux/mali/
+cp logo.bmp out/
+cp -rfd drivers/gpu/arm/mali400/ump/arch-pb-virtex5-m400-4/config.h out/drivers/gpu/arm/mali400/ump/arch-pb-virtex5-m400-4/
+
+# setting the cross compile path
+CP="/home/zeroway/3288/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-"
+
+make ARCH=arm CROSS_COMPILE=$CP O=out rk3288-p977_8846.img -j8
