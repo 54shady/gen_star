@@ -1,3 +1,13 @@
+# 脚本命名
+
+genk generate kernel image
+
+gens generate system image
+
+genc generate kernel dot config file
+
+genr generate ramdisk image
+
 # 使用方法
 
 因为脚本中的所有路径都写成了绝对路径
