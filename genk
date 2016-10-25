@@ -1,22 +1,40 @@
-#make O=out rockchip_defconfig
+# marco
+ANDROID_TOP_DIR="/home/zeroway/3288/51/src/3288_5.1"
+KERNEL_OUT_DIR=$ANDROID_TOP_DIR/out/target/product/rk3288/obj/KERNEL
 
-mkdir -p out/drivers/gpu/arm/mali400/ump/linux
-mkdir -p out/drivers/gpu/arm/mali400/mali/linux
-mkdir -p out/drivers/net/wireless/rockchip_wlan/wifi_sys
-mkdir -p out/drivers/gpu/arm/mali400/mali/include/linux/mali
+# build prepare
+mkdir -p $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/ump/linux
+mkdir -p $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/mali/linux
+mkdir -p $KERNEL_OUT_DIR/drivers/net/wireless/rockchip_wlan/wifi_sys
+mkdir -p $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/mali/include/linux/mali
 
-mkdir -p out/drivers/gpu/arm/mali400/ump/arch-pb-virtex5-m400-4
-#mkdir -p out/drivers/gpu/arm/mali400/ump/arch/arch-pb-virtex5-m400-4
+#cp -rf logo.bmp $KERNEL_OUT_DIR/
+#cp -rfd drivers/gpu/arm/mali400/ump/arch-default $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/ump/
+cp -rfd drivers/gpu/arm/mali400/ump/linux/license $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/ump/linux/license
+cp -rfd drivers/gpu/arm/mali400/mali/linux/license $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/mali/linux/license
+#cp drivers/gpu/arm/mali400/mali/include/linux/mali/mali_utgard_uk_types.h $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/mali/include/linux/mali/
+cp logo_kernel.bmp $KERNEL_OUT_DIR/
 
-cp -rfd logo.bmp out/
-cp -rfd drivers/gpu/arm/mali400/ump/arch-default out/drivers/gpu/arm/mali400/ump/
-cp -rfd drivers/gpu/arm/mali400/ump/linux/license out/drivers/gpu/arm/mali400/ump/linux/license
-cp -rfd drivers/gpu/arm/mali400/mali/linux/license out/drivers/gpu/arm/mali400/mali/linux/license
-cp drivers/gpu/arm/mali400/mali/include/linux/mali/mali_utgard_uk_types.h out/drivers/gpu/arm/mali400/mali/include/linux/mali/
-cp logo.bmp out/
-cp -rfd drivers/gpu/arm/mali400/ump/arch-pb-virtex5-m400-4/config.h out/drivers/gpu/arm/mali400/ump/arch-pb-virtex5-m400-4/
+# copy the suck config file
+ALL_SUCK_FILES=(
+"drivers/gpu/arm/mali400/ump/arch-pb-virtex5/config.h"
+"drivers/gpu/arm/mali400/ump/arch-pb-virtex5-m400-4/config.h"
+"drivers/gpu/arm/mali400/ump/arch-default/config.h"
+"drivers/gpu/arm/mali400/ump/arch/config.h"
+)
 
-# setting the cross compile path
-CP="/home/zeroway/3288/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-"
+for file in ${ALL_SUCK_FILES[@]}
+do
+	if [ -f $file ]; then
+		dst_dir_tmp=${file%/*} 
+		dst_dir=$KERNEL_OUT_DIR/${dst_dir_tmp#/*}
+		if [ ! -d ${dst_dir} ]; then
+			mkdir -p ${dst_dir}
+		fi
 
-make ARCH=arm CROSS_COMPILE=$CP O=out rk3288-p977_8846.img -j8
+		# 备份相应目录的文件
+		cp -rvfd $file $KERNEL_OUT_DIR/$file
+	fi
+done
+
+make ARCH=arm CROSS_COMPILE=/home/zeroway/3288/51/src/3288_5.1/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- O=$KERNEL_OUT_DIR rk3288_fc14.img
