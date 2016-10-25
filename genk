@@ -3,6 +3,10 @@
 # marco
 ANDROID_TOP_DIR="/home/zeroway/3288/51/src/3288_5.1"
 KERNEL_OUT_DIR=$ANDROID_TOP_DIR/out/target/product/rk3288/obj/KERNEL
+LOCAL_CROSS_COMPILE="/home/zeroway/3288/51/src/3288_5.1/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-"
+KERNEL_CONFIG_FILE="rk3288_fccx14d_defconfig"
+KERNEL_TARGET_IMAGE="rk3288_fc14.img"
+BUILD_JOBS="-j32"
 
 #################### A BRANCH OF CRAP START ####################
 # build prepare
@@ -28,17 +32,28 @@ do
 	if [ -f $file ]; then
 		dst_dir_tmp=${file%/*}
 		dst_dir=$KERNEL_OUT_DIR/${dst_dir_tmp#/*}
-		echo "dest dir ==>" $dst_dir
+		#echo "dest dir ======>" $dst_dir
 		if [ ! -d ${dst_dir} ]; then
 			mkdir -p ${dst_dir}
 		fi
 
-		cp -rvfd $file $KERNEL_OUT_DIR/$file
+		cp -rfd $file $KERNEL_OUT_DIR/$file
 	fi
 done
 
 #################### A BRANCH OF CRAP END ####################
 
 #################### THE REAL WORK START ####################
-make ARCH=arm CROSS_COMPILE=/home/zeroway/3288/51/src/3288_5.1/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi- O=$KERNEL_OUT_DIR rk3288_fc14.img -j32
+# generate dot config file if not exist
+if [ ! -f $KERNEL_OUT_DIR/.config ]
+then
+	#echo "dot config file not exist, generate it======>"
+	make ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR $KERNEL_CONFIG_FILE
+fi
+
+# make kernel image use rk3288_fc14.dtb
+make ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR $KERNEL_TARGET_IMAGE $BUILD_JOBS
+
+# make modules
+# make ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR modules -j32
 #################### THE REAL WORK END ####################
