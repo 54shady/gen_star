@@ -33,3 +33,13 @@ genr generate ramdisk image
 直接按<F9>就能编译内核,映射如下,可以写入到vimrc里
 
 	noremap <F9> :!genk
+
+## genr使用方法
+
+### 解压ramdisk.img到当前目录下tmp目录里
+
+	genr -r /path/ramdisk.img
+
+### 打包当前tmp里的文件到ramdisk.img
+
+	genr

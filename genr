@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# pack ramdisk
+pack_ramdisk()
+{
+	NEW_RAMDISK="ramdisk.img"
+
+	# make sure rootfs exist
+	if [ ! -d tmp ]
+	then
+		echo "Sorry no tmp rootfs dir found."
+		exit
+	fi
+
+	cd tmp
+	find . | cpio -ov -H newc | gzip > ../$NEW_RAMDISK
+	cd ../
+	rm -rf tmp
+}
+
+# unpack ramdisk
+unpack_ramdisk()
+{
+	NEW_RAMDISK="ramdisk.img"
+	OLD_RAMDISK=""
+
+	if [ $# -lt 1 ]
+	then
+		echo "Usage unpack_ramdisk ramdisk.img"
+		exit
+	fi
+
+	# rename ramdisk and unzip
+	OLD_RAMDISK=$1
+
+	# dir name
+	echo ${OLD_RAMDISK%/*}
+
+	# copy old ramdisk to current and rename it with gz suffix
+	cp $1 $NEW_RAMDISK.gz
+
+	# unzip it
+	gunzip -f $NEW_RAMDISK.gz
+
+	if [ ! -d tmp ]
+	then
+		mkdir tmp
+	fi
+
+	cd tmp
+	cpio -i -F ../$NEW_RAMDISK
+
+	# remove the old package
+	rm -rf ../$NEW_RAMDISK
+}
+
+# Usage
+# genr -r /path/ramdisk.img to unpack ramdisk
+# genr will pack the ramdisk.img
+if [ "$1" = "-r" ]
+then
+	unpack_ramdisk $2
+else
+	pack_ramdisk
+fi
