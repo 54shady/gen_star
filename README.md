@@ -8,11 +8,6 @@ genc generate kernel dot config file
 
 genr generate ramdisk image
 
-# 最新genk已经需要带参数操作具体操作如下
-
-	genk -4 编译3.10.49
-	genk -5 编译3.10.79
-
 # 最新genc已经需要带参数操作具体操作如下
 
 	genc 等价与make menuconfig
@@ -20,9 +15,9 @@ genr generate ramdisk image
 
 # 使用方法
 
-因为脚本中的所有路径都写成了绝对路径
+将脚本加上执行权限
 
-所以只要将脚本加上执行权限
+	chmod a+x genk
 
 放到环境变量中,比如在.bashrc中设置了PATH
 
@@ -30,9 +25,7 @@ genr generate ramdisk image
 
 将脚本放到/home/zeroway/mytools目录下
 
-	chmod a+x genk
-
-在任意路径下都可以通过执行genk来编译内核代码
+在android源代码顶层目录下执行genk来编译内核代码
 
 还可以在vim中来调用genk,比如
 
