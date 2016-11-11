@@ -1,63 +1,115 @@
 # run this script anywhere as you wish
 # cuz all the path is absolute path
 
-# marco
-ANDROID_TOP_DIR="/home/zeroway/3288/51/src/3288_5.1"
-KERNEL_TOP_DIR="/home/zeroway/3288/51/src/3288_5.1/kernel"
-KERNEL_OUT_DIR=$ANDROID_TOP_DIR/out/target/product/rk3288/obj/KERNEL
-LOCAL_CROSS_COMPILE="/home/zeroway/3288/51/src/3288_5.1/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-"
-KERNEL_CONFIG_FILE="rk3288_fccx14d_defconfig"
-KERNEL_TARGET_IMAGE="rk3288_fc14.img"
-BUILD_JOBS="-j32"
+# genk for kernel version 3.10.79
+genk_for_31079()
+{
+	# marco
+	ANDROID_TOP_DIR="/home/zeroway/3288/51/src/3288_5.1"
+	KERNEL_TOP_DIR="/home/zeroway/3288/51/src/3288_5.1/kernel"
+	KERNEL_OUT_DIR=$ANDROID_TOP_DIR/out/target/product/rk3288/obj/KERNEL
+	LOCAL_CROSS_COMPILE="/home/zeroway/3288/51/src/3288_5.1/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-"
+	KERNEL_CONFIG_FILE="rk3288_fccx14d_defconfig"
+	KERNEL_TARGET_IMAGE="rk3288_fc14.img"
+	BUILD_JOBS="-j32"
 
-#################### A BRANCH OF CRAP START ####################
-# build prepare
-mkdir -p $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/ump/linux
-mkdir -p $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/mali/linux
-mkdir -p $KERNEL_OUT_DIR/drivers/net/wireless/rockchip_wlan/wifi_sys
-mkdir -p $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/mali/include/linux/mali
+	#################### A BRANCH OF CRAP START ####################
+	# build prepare
+	mkdir -p $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/ump/linux
+	mkdir -p $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/mali/linux
+	mkdir -p $KERNEL_OUT_DIR/drivers/net/wireless/rockchip_wlan/wifi_sys
+	mkdir -p $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/mali/include/linux/mali
 
-cp -rfd $KERNEL_TOP_DIR/drivers/gpu/arm/mali400/ump/linux/license $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/ump/linux/license
-cp -rfd $KERNEL_TOP_DIR/drivers/gpu/arm/mali400/mali/linux/license $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/mali/linux/license
-cp -rfd $KERNEL_TOP_DIR/logo_kernel.bmp $KERNEL_OUT_DIR/
-cp -rfd $KERNEL_TOP_DIR/logo.bmp $KERNEL_OUT_DIR/
+	cp -rfd $KERNEL_TOP_DIR/drivers/gpu/arm/mali400/ump/linux/license $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/ump/linux/license
+	cp -rfd $KERNEL_TOP_DIR/drivers/gpu/arm/mali400/mali/linux/license $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/mali/linux/license
+	cp -rfd $KERNEL_TOP_DIR/logo_kernel.bmp $KERNEL_OUT_DIR/
+	cp -rfd $KERNEL_TOP_DIR/logo.bmp $KERNEL_OUT_DIR/
 
-# copy the suck files
-ALL_SUCK_FILES=(
-"drivers/gpu/arm/mali400/ump/arch-pb-virtex5/config.h"
-"drivers/gpu/arm/mali400/ump/arch-pb-virtex5-m400-4/config.h"
-"drivers/gpu/arm/mali400/ump/arch-default/config.h"
-"drivers/gpu/arm/mali400/ump/arch/config.h"
-)
+	# copy the suck files
+	ALL_SUCK_FILES=(
+	"drivers/gpu/arm/mali400/ump/arch-pb-virtex5/config.h"
+	"drivers/gpu/arm/mali400/ump/arch-pb-virtex5-m400-4/config.h"
+	"drivers/gpu/arm/mali400/ump/arch-default/config.h"
+	"drivers/gpu/arm/mali400/ump/arch/config.h"
+	)
 
-for file in $KERNEL_TOP_DIR${ALL_SUCK_FILES[@]}
-do
-	if [ -f $KERNEL_TOP_DIR/$file ]; then
-		dst_dir_tmp=${file%/*}
-		dst_dir=$KERNEL_OUT_DIR/${dst_dir_tmp#/*}
-		#echo $KERNEL_OUT_DIR/$file
-		#echo "dest dir ======>" $dst_dir
-		if [ ! -d ${dst_dir} ]; then
-			mkdir -p ${dst_dir}
+	for file in $KERNEL_TOP_DIR${ALL_SUCK_FILES[@]}
+	do
+		if [ -f $KERNEL_TOP_DIR/$file ]; then
+			dst_dir_tmp=${file%/*}
+			dst_dir=$KERNEL_OUT_DIR/${dst_dir_tmp#/*}
+			#echo $KERNEL_OUT_DIR/$file
+			#echo "dest dir ======>" $dst_dir
+			if [ ! -d ${dst_dir} ]; then
+				mkdir -p ${dst_dir}
+			fi
+
+			cp -rfd $KERNEL_TOP_DIR/$file $KERNEL_OUT_DIR/$file
 		fi
+	done
 
-		cp -rfd $KERNEL_TOP_DIR/$file $KERNEL_OUT_DIR/$file
+	#################### A BRANCH OF CRAP END ####################
+
+	#################### THE REAL WORK START ####################
+	# generate dot config file if not exist
+	if [ ! -f $KERNEL_OUT_DIR/.config ]
+	then
+		#echo "dot config file not exist, generate it======>"
+		make -C $KERNEL_TOP_DIR ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR $KERNEL_CONFIG_FILE
 	fi
-done
 
-#################### A BRANCH OF CRAP END ####################
+	# make kernel image use rk3288_fc14.dtb
+	make -C $KERNEL_TOP_DIR ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR $KERNEL_TARGET_IMAGE $BUILD_JOBS
 
-#################### THE REAL WORK START ####################
-# generate dot config file if not exist
-if [ ! -f $KERNEL_OUT_DIR/.config ]
+	# make modules
+	# make -C $KERNEL_TOP_DIR ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR modules -j32
+	#################### THE REAL WORK END ####################
+}
+
+# genk for kernel 3.10.49
+genk_for_31049()
+{
+	# marco
+	ANDROID_TOP_DIR="/home/zeroway/3288/src/3288_4.4"
+	KERNEL_TOP_DIR="$ANDROID_TOP_DIR/kernel"
+	KERNEL_OUT_DIR="$ANDROID_TOP_DIR/out/target/product/rk3288/obj/KERNEL"
+	LOCAL_CROSS_COMPILE="$ANDROID_TOP_DIR/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-"
+	KERNEL_CONFIG_FILE="rockchip_defconfig"
+	KERNEL_TARGET_IMAGE="rk3288-p977_8846.img"
+	BUILD_JOBS="-j32"
+
+	#make O=$KERNEL_OUT_DIR rockchip_defconfig
+
+	mkdir -p $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/ump/linux
+	mkdir -p $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/mali/linux
+	mkdir -p $KERNEL_OUT_DIR/drivers/net/wireless/rockchip_wlan/wifi_sys
+	mkdir -p $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/mali/include/linux/mali
+
+	mkdir -p $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/ump/arch-pb-virtex5-m400-4
+
+	cp -rfd $KERNEL_TOP_DIR/logo.bmp $KERNEL_OUT_DIR/
+	cp -rfd $KERNEL_TOP_DIR/drivers/gpu/arm/mali400/ump/arch-default $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/ump/
+	cp -rfd $KERNEL_TOP_DIR/drivers/gpu/arm/mali400/ump/linux/license $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/ump/linux/license
+	cp -rfd $KERNEL_TOP_DIR/drivers/gpu/arm/mali400/mali/linux/license $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/mali/linux/license
+	cp -rfd $KERNEL_TOP_DIR/drivers/gpu/arm/mali400/mali/include/linux/mali/mali_utgard_uk_types.h $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/mali/include/linux/mali/
+	cp -rfd $KERNEL_TOP_DIR/logo.bmp $KERNEL_OUT_DIR/
+	cp -rfd $KERNEL_TOP_DIR/drivers/gpu/arm/mali400/ump/arch-pb-virtex5-m400-4/config.h $KERNEL_OUT_DIR/drivers/gpu/arm/mali400/ump/arch-pb-virtex5-m400-4/
+
+	make -C $KERNEL_TOP_DIR ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR $KERNEL_TARGET_IMAGE $BUILD_JOBS
+}
+
+# Usage
+# genk -4 for compile kernel for android 4.4
+# genk -5 for compile kernel for android 5.1
+if [ "$1" = "-4" ]
 then
-	#echo "dot config file not exist, generate it======>"
-	make -C $KERNEL_TOP_DIR ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR $KERNEL_CONFIG_FILE
+	genk_for_31049
+elif [ "$1" = "-5" ]
+then
+	genk_for_31079
+else
+	echo "parameter ERROR"
+	echo "Usage"
+	echo "genk -4 for android 4.4 kernel compile"
+	echo "genk -5 for android 5.1 kernel compile"
 fi
-
-# make kernel image use rk3288_fc14.dtb
-make -C $KERNEL_TOP_DIR ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR $KERNEL_TARGET_IMAGE $BUILD_JOBS
-
-# make modules
-# make -C $KERNEL_TOP_DIR ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR modules -j32
-#################### THE REAL WORK END ####################

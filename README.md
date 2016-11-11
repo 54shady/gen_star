@@ -8,6 +8,11 @@ genc generate kernel dot config file
 
 genr generate ramdisk image
 
+# 最新genk已经需要带参数操作具体操作如下
+
+	genk -4 编译3.10.49
+	genk -5 编译3.10.79
+
 # 使用方法
 
 因为脚本中的所有路径都写成了绝对路径
