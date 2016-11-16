@@ -4,6 +4,7 @@
 # FIXME
 # how to distingush different directory, any better ideas
 LOCAL_ANDROID_51_TOP_DIR="/home/zeroway/3288/51/src/3288_5.1"
+LOCAL_ANDROID_51_TOP_DIR_V2="/home/zeroway/3288/51/src/3288_5.1_v2"
 LOCAL_ANDROID_44_TOP_DIR="/home/zeroway/3288/src/3288_4.4"
 
 # global variable
@@ -16,9 +17,20 @@ BUILD_JOBS="-j32"
 # genk for kernel version 3.10.79
 genk_for_31079()
 {
-	# local variable
-	KERNEL_CONFIG_FILE="rk3288_fccx14d_defconfig"
-	KERNEL_TARGET_IMAGE="rk3288_fc14.img"
+
+	if [ "$PWD" = "$LOCAL_ANDROID_51_TOP_DIR" ]
+	then
+		# local variable
+		KERNEL_CONFIG_FILE="rk3288_fccx14d_defconfig"
+		KERNEL_TARGET_IMAGE="rk3288_fc14.img"
+	elif [ "$PWD" = "$LOCAL_ANDROID_51_TOP_DIR_V2" ]
+	then
+		# local variable
+		KERNEL_CONFIG_FILE="rockchip_defconfig"
+		KERNEL_TARGET_IMAGE="rk3288-p977_8846.img"
+	else
+		echo "Current dir ERROR"
+	fi
 
 	#################### A BRANCH OF CRAP START ####################
 	# build prepare
@@ -106,6 +118,9 @@ genk_for_31049()
 
 	# make kernel
 	make -C $KERNEL_TOP_DIR ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR $KERNEL_TARGET_IMAGE $BUILD_JOBS
+
+	# make modules
+	make -C $KERNEL_TOP_DIR ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR modules $BUILD_JOBS
 }
 
 # Usage
@@ -115,9 +130,13 @@ then
 elif [ "$PWD" = "$LOCAL_ANDROID_51_TOP_DIR" ]
 then
 	genk_for_31079
+elif [ "$PWD" = "$LOCAL_ANDROID_51_TOP_DIR_V2" ]
+then
+	genk_for_31079
 else
 	echo "unvalid android top directory"
 	echo "run this script under android top directory"
 	echo "AOSP 5 /home/zeroway/3288/51/src/3288_5.1"
+	echo "AOSP 5 /home/zeroway/3288/51/src/3288_5.1_v2"
 	echo "AOSP 4 /home/zeroway/3288/src/3288_4.4"
 fi
