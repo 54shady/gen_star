@@ -1,6 +1,11 @@
 #!/bin/bash
 
 #set -x
+
+# android top directory
+ANDROID_TOP_DIR_3288="/home/zeroway/3288/51/src/3288_5.1_v2"
+ANDROID_TOP_DIR_3368="/home/zeroway/3368/src/3368"
+
 # update.img out dir
 UPDATES_GEN_DIR="/home/zeroway/updates"
 
@@ -16,47 +21,57 @@ UBOOT_IMG="$UPDATES_GEN_DIR/Image/uboot.img"
 MISC_IMG="$UPDATES_GEN_DIR/Image/misc.img"
 TRUCT_IMG="$UPDATES_GEN_DIR/Image/trust.img"
 
+# make links
+make_links()
+{
+	# clean the Image directory
+	rm -rvf $UPDATES_GEN_DIR/Image
+	mkdir $UPDATES_GEN_DIR/Image
+
+	# make links files to target
+	cd $UPDATES_GEN_DIR/Image/
+	for file in ${target_imgs[@]}
+	do
+		ln -s $file
+	done
+	cd $UPDATES_GEN_DIR/
+
+	# chose package-file and parameter
+	if [ -h $PACKAGE_FILE ]
+	then
+		rm $PACKAGE_FILE
+	fi
+	if [ -h $PARAMETER ]
+	then
+		rm $PARAMETER
+	fi
+	ln -s $TARGET_PACKAGE_FILE $PACKAGE_FILE
+	ln -s $TARGET_PARAMETER_FILE $PARAMETER
+}
+
 make_update_3288()
 {
 	# 3288 target images
-	TARGET_KERNEL_IMG="/home/zeroway/3288/51/src/3288_5.1_v2/out/target/product/rk3288/obj/KERNEL/kernel.img"
-	TARGET_RESOURCE_IMG="/home/zeroway/3288/51/src/3288_5.1_v2/out/target/product/rk3288/obj/KERNEL/resource.img"
-	TARGET_RECOVERY_IMG="/home/zeroway/3288/51/src/3288_5.1_v2/rockdev/Image-rk3288/recovery.img"
-	TARGET_SYSTEM_IMG="/home/zeroway/3288/51/src/3288_5.1_v2/rockdev/Image-rk3288/system.img"
-	TARGET_BOOT_IMG="/home/zeroway/3288/51/src/3288_5.1_v2/rockdev/Image-rk3288/boot.img"
-	TARGET_MISC_IMG="/home/zeroway/3288/51/src/3288_5.1_v2/rockdev/Image-rk3288/misc.img"
+	TARGET_KERNEL_IMG="$ANDROID_TOP_DIR_3288/out/target/product/rk3288/obj/KERNEL/kernel.img"
+	TARGET_RESOURCE_IMG="$ANDROID_TOP_DIR_3288/out/target/product/rk3288/obj/KERNEL/resource.img"
+	TARGET_RECOVERY_IMG="$ANDROID_TOP_DIR_3288/rockdev/Image-rk3288/recovery.img"
+	TARGET_SYSTEM_IMG="$ANDROID_TOP_DIR_3288/rockdev/Image-rk3288/system.img"
+	TARGET_BOOT_IMG="$ANDROID_TOP_DIR_3288/rockdev/Image-rk3288/boot.img"
+	TARGET_MISC_IMG="$ANDROID_TOP_DIR_3288/rockdev/Image-rk3288/misc.img"
+	target_imgs=(
+		$TARGET_KERNEL_IMG
+		$TARGET_RESOURCE_IMG
+		$TARGET_RECOVERY_IMG
+		$TARGET_SYSTEM_IMG
+		$TARGET_BOOT_IMG
+		$TARGET_MISC_IMG
+	)
+
 	TARGET_PACKAGE_FILE="$UPDATES_GEN_DIR/package-file_3288"
 	TARGET_PARAMETER_FILE="$UPDATES_GEN_DIR/parameter_3288"
 
-	make_links_files=(
-		$KERNEL_IMG
-		$RESOURCE_IMG
-		$RECOVERY_IMG
-		$SYSTEM_IMG
-		$BOOT_IMG
-		$PACKAGE_FILE
-		$PARAMETER
-		$MISC_IMG
-	)
-
-	# if exist links, delete it
-	for file in ${make_links_files[@]}
-	do
-		if [ -h $file ]
-		then
-			rm -rvf $file
-		fi
-	done
-
-	# make links files to target
-	ln -s $TARGET_KERNEL_IMG   $KERNEL_IMG
-	ln -s $TARGET_RESOURCE_IMG $RESOURCE_IMG
-	ln -s $TARGET_RECOVERY_IMG $RECOVERY_IMG
-	ln -s $TARGET_SYSTEM_IMG   $SYSTEM_IMG
-	ln -s $TARGET_BOOT_IMG   $BOOT_IMG
-	ln -s $TARGET_PACKAGE_FILE $PACKAGE_FILE
-	ln -s $TARGET_PARAMETER_FILE $PARAMETER
-	ln -s $TARGET_MISC_IMG $MISC_IMG
+	# make links for the metadata
+	make_links
 
 	echo "make 3288 5.1 update.img"
 	$UPDATES_GEN_DIR/afptool -pack $UPDATES_GEN_DIR/ $UPDATES_GEN_DIR/Image/update.img || pause
@@ -66,50 +81,29 @@ make_update_3288()
 make_update_3368()
 {
 	# 3368 target images
-	TARGET_KERNEL_IMG="/home/zeroway/3368/src/3368/kernel/kernel.img"
-	TARGET_RESOURCE_IMG="/home/zeroway/3368/src/3368/kernel/resource.img"
-	TARGET_RECOVERY_IMG="/home/zeroway/3368/src/3368/rockdev/Image-rk3368_32/recovery.img"
-	TARGET_SYSTEM_IMG="/home/zeroway/3368/src/3368/rockdev/Image-rk3368_32/system.img"
-	TARGET_BOOT_IMG="/home/zeroway/3368/src/3368/rockdev/Image-rk3368_32/boot.img"
-	TARGET_MISC_IMG="/home/zeroway/3368/src/3368/rockdev/Image-rk3368_32/misc.img"
-	TARGET_TRUST_IMG="/home/zeroway/3368/src/3368/u-boot/trust.img"
+	TARGET_KERNEL_IMG="$ANDROID_TOP_DIR_3368/kernel/kernel.img"
+	TARGET_RESOURCE_IMG="$ANDROID_TOP_DIR_3368/kernel/resource.img"
+	TARGET_RECOVERY_IMG="$ANDROID_TOP_DIR_3368/rockdev/Image-rk3368_32/recovery.img"
+	TARGET_SYSTEM_IMG="$ANDROID_TOP_DIR_3368/rockdev/Image-rk3368_32/system.img"
+	TARGET_BOOT_IMG="$ANDROID_TOP_DIR_3368/rockdev/Image-rk3368_32/boot.img"
+	TARGET_MISC_IMG="$ANDROID_TOP_DIR_3368/rockdev/Image-rk3368_32/misc.img"
+	TARGET_TRUST_IMG="$ANDROID_TOP_DIR_3368/u-boot/trust.img"
 	TARGET_PACKAGE_FILE="$UPDATES_GEN_DIR/package-file_3368"
 	TARGET_PARAMETER_FILE="$UPDATES_GEN_DIR/parameter_3368"
-	TARGET_UBOOT_IMG="/home/zeroway/3368/src/3368/u-boot/uboot.img"
-
-	make_links_files=(
-		$KERNEL_IMG
-		$RESOURCE_IMG
-		$RECOVERY_IMG
-		$SYSTEM_IMG
-		$BOOT_IMG
-		$PACKAGE_FILE
-		$PARAMETER
-		$UBOOT_IMG
-		$MISC_IMG
-		$TRUCT_IMG
+	TARGET_UBOOT_IMG="$ANDROID_TOP_DIR_3368/u-boot/uboot.img"
+	target_imgs=(
+		$TARGET_KERNEL_IMG
+		$TARGET_RESOURCE_IMG
+		$TARGET_RECOVERY_IMG
+		$TARGET_SYSTEM_IMG
+		$TARGET_BOOT_IMG
+		$TARGET_MISC_IMG
+		$TARGET_TRUST_IMG
+		$TARGET_UBOOT_IMG
 	)
 
-	# if exist links, delete it
-	for file in ${make_links_files[@]}
-	do
-		if [ -h $file ]
-		then
-			rm -rvf $file
-		fi
-	done
-
-	# make links files to target
-	ln -s $TARGET_KERNEL_IMG   $KERNEL_IMG
-	ln -s $TARGET_RESOURCE_IMG $RESOURCE_IMG
-	ln -s $TARGET_RECOVERY_IMG $RECOVERY_IMG
-	ln -s $TARGET_SYSTEM_IMG   $SYSTEM_IMG
-	ln -s $TARGET_BOOT_IMG   $BOOT_IMG
-	ln -s $TARGET_PACKAGE_FILE $PACKAGE_FILE
-	ln -s $TARGET_PARAMETER_FILE $PARAMETER
-	ln -s $TARGET_UBOOT_IMG $UBOOT_IMG
-	ln -s $TARGET_MISC_IMG $MISC_IMG
-	ln -s $TARGET_TRUST_IMG $TRUCT_IMG
+	# make links for the metadata
+	make_links
 
 	echo "make 3368 5.1 update.img"
 	$UPDATES_GEN_DIR/afptool -pack $UPDATES_GEN_DIR/ $UPDATES_GEN_DIR/Image/update.img || pause
