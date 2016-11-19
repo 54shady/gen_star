@@ -7,8 +7,24 @@ ANDROID_OUT_DIR="$ANDROID_TOP_DIR/out/target/product/rk3288"
 HOST_BIN="$ANDROID_TOP_DIR/out/host/linux-x86/bin"
 BUILD_IMAGE_SCRIPT="$ANDROID_TOP_DIR/build/tools/releasetools/build_image.py"
 SYSTEM_OUTPUT_DIR="$ANDROID_OUT_DIR/obj/PACKAGING/systemimage_intermediates"
+IMAGE_PATH="$ANDROID_TOP_DIR/rockdev/Image-rk3288"
 
 PATH=$HOST_BIN:$PATH
 $BUILD_IMAGE_SCRIPT $ANDROID_OUT_DIR/system $SYSTEM_OUTPUT_DIR/system_image_info.txt $SYSTEM_OUTPUT_DIR/system.img
 
 $HOST_BIN/acp -fp $SYSTEM_OUTPUT_DIR/system.img $ANDROID_OUT_DIR/system.img
+
+# this suck below just for rockchip flash tools
+system_size=`ls -l $ANDROID_OUT_DIR/system.img | awk '{print $5;}'`
+
+[ $system_size -gt "0" ] || { echo "Please make first!!!" && exit 1; }
+
+MAKE_EXT4FS_ARGS=" -L system -S $ANDROID_OUT_DIR/root/file_contexts -a system $IMAGE_PATH/system.img $ANDROID_OUT_DIR/system"
+
+ok=0
+while [ "$ok" = "0" ]; do
+	make_ext4fs -l $system_size $MAKE_EXT4FS_ARGS >/dev/null 2>&1 &&
+	tune2fs -c -1 -i 0 $IMAGE_PATH/system.img >/dev/null 2>&1 &&
+	ok=1 || system_size=$(($system_size + 5242880))
+done
+e2fsck -fyD $IMAGE_PATH/system.img >/dev/null 2>&1 || true
