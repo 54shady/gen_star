@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#set -x
+set -x
 
 # android top directory
 ANDROID_TOP_DIR_3288="/home/zeroway/3288/51/src/3288_5.1_v2"
@@ -21,11 +21,13 @@ UBOOT_IMG="$UPDATES_GEN_DIR/Image/uboot.img"
 MISC_IMG="$UPDATES_GEN_DIR/Image/misc.img"
 TRUCT_IMG="$UPDATES_GEN_DIR/Image/trust.img"
 
+CURRENT_DATE=`date +%Y%m%d`
+
 # pack images
 pack_images()
 {
 	$UPDATES_GEN_DIR/afptool -pack $UPDATES_GEN_DIR/ $UPDATES_GEN_DIR/Image/update.img || pause
-	$UPDATES_GEN_DIR/rkImageMaker $PLATFORM $TARGET_BOOTLOADER_IMG $UPDATES_GEN_DIR/Image/update.img update.img -os_type:androidos || pause
+	$UPDATES_GEN_DIR/rkImageMaker $PLATFORM $TARGET_BOOTLOADER_IMG $UPDATES_GEN_DIR/Image/update.img "update_${SOC_NAME}_${CURRENT_DATE}.img" -os_type:androidos || pause
 }
 
 # make links
@@ -83,6 +85,7 @@ make_update_3288()
 
 	echo "make 3288 5.1 update.img"
 	PLATFORM="-RK32"
+	SOC_NAME="3288"
 	pack_images
 }
 
@@ -117,6 +120,7 @@ make_update_3368()
 
 	echo "make 3368 5.1 update.img"
 	PLATFORM="-RK330A"
+	SOC_NAME="3368"
 	pack_images
 }
 
