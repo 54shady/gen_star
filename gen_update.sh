@@ -21,6 +21,13 @@ UBOOT_IMG="$UPDATES_GEN_DIR/Image/uboot.img"
 MISC_IMG="$UPDATES_GEN_DIR/Image/misc.img"
 TRUCT_IMG="$UPDATES_GEN_DIR/Image/trust.img"
 
+# pack images
+pack_images()
+{
+	$UPDATES_GEN_DIR/afptool -pack $UPDATES_GEN_DIR/ $UPDATES_GEN_DIR/Image/update.img || pause
+	$UPDATES_GEN_DIR/rkImageMaker $PLATFORM $TARGET_BOOTLOADER_IMG $UPDATES_GEN_DIR/Image/update.img update.img -os_type:androidos || pause
+}
+
 # make links
 make_links()
 {
@@ -69,13 +76,14 @@ make_update_3288()
 
 	TARGET_PACKAGE_FILE="$UPDATES_GEN_DIR/package-file_3288"
 	TARGET_PARAMETER_FILE="$UPDATES_GEN_DIR/parameter_3288"
+	TARGET_BOOTLOADER_IMG="$UPDATES_GEN_DIR/RK3288UbootLoader_V2.19.10.bin"
 
 	# make links for the metadata
 	make_links
 
 	echo "make 3288 5.1 update.img"
-	$UPDATES_GEN_DIR/afptool -pack $UPDATES_GEN_DIR/ $UPDATES_GEN_DIR/Image/update.img || pause
-	$UPDATES_GEN_DIR/rkImageMaker -RK32 RK3288UbootLoader_V2.19.10.bin $UPDATES_GEN_DIR/Image/update.img update.img -os_type:androidos || pause
+	PLATFORM="-RK32"
+	pack_images
 }
 
 make_update_3368()
@@ -91,6 +99,7 @@ make_update_3368()
 	TARGET_PACKAGE_FILE="$UPDATES_GEN_DIR/package-file_3368"
 	TARGET_PARAMETER_FILE="$UPDATES_GEN_DIR/parameter_3368"
 	TARGET_UBOOT_IMG="$ANDROID_TOP_DIR_3368/u-boot/uboot.img"
+	TARGET_BOOTLOADER_IMG="$UPDATES_GEN_DIR/RK3368MiniLoaderAll_V2.40.bin"
 	target_imgs=(
 		$TARGET_KERNEL_IMG
 		$TARGET_RESOURCE_IMG
@@ -100,14 +109,15 @@ make_update_3368()
 		$TARGET_MISC_IMG
 		$TARGET_TRUST_IMG
 		$TARGET_UBOOT_IMG
+		$TARGET_BOOTLOADER_IMG
 	)
 
 	# make links for the metadata
 	make_links
 
 	echo "make 3368 5.1 update.img"
-	$UPDATES_GEN_DIR/afptool -pack $UPDATES_GEN_DIR/ $UPDATES_GEN_DIR/Image/update.img || pause
-	$UPDATES_GEN_DIR/rkImageMaker -RK330A RK3368MiniLoaderAll_V2.40.bin $UPDATES_GEN_DIR/Image/update.img update.img -os_type:androidos || pause
+	PLATFORM="-RK330A"
+	pack_images
 }
 
 print_usage()
