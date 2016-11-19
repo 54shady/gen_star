@@ -1,0 +1,5 @@
+#!/bin/bash
+
+PATH=out/host/linux-x86/bin/:$PATH ./build/tools/releasetools/build_image.py out/target/product/rk3288/system out/target/product/rk3288/obj/PACKAGING/systemimage_intermediates/system_image_info.txt out/target/product/rk3288/obj/PACKAGING/systemimage_intermediates/system.img
+
+out/host/linux-x86/bin/acp -fp out/target/product/rk3288/obj/PACKAGING/systemimage_intermediates/system.img out/target/product/rk3288/system.img
