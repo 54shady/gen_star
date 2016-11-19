@@ -27,7 +27,7 @@ CURRENT_DATE=`date +%Y%m%d`
 pack_images()
 {
 	$UPDATES_GEN_DIR/afptool -pack $UPDATES_GEN_DIR/ $UPDATES_GEN_DIR/Image/update.img || pause
-	$UPDATES_GEN_DIR/rkImageMaker $PLATFORM $TARGET_BOOTLOADER_IMG $UPDATES_GEN_DIR/Image/update.img "update_${SOC_NAME}_${CURRENT_DATE}.img" -os_type:androidos || pause
+	$UPDATES_GEN_DIR/rkImageMaker $PLATFORM $TARGET_BOOTLOADER_IMG $UPDATES_GEN_DIR/Image/update.img "update_${SOC_NAME}_${CURRENT_DATE}_linux.img" -os_type:androidos || pause
 }
 
 # make links
