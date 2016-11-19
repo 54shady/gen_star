@@ -1,12 +1,10 @@
 # 脚本命名
 
-genk generate kernel image
-
-gens generate system image
-
-genc generate kernel dot config file
-
-genr generate ramdisk image
+- genk generate kernel image
+- gens generate system image
+- genc generate kernel dot config file
+- genr generate ramdisk image
+- genb generate boot image
 
 # 最新genc已经需要带参数操作具体操作如下
 
