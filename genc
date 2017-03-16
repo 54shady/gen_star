@@ -4,26 +4,26 @@
 # marco
 ANDROID_TOP_DIR=$PWD
 KERNEL_TOP_DIR="$ANDROID_TOP_DIR/kernel"
-KERNEL_OUT_DIR="$ANDROID_TOP_DIR/out/target/product/rk3288/obj/KERNEL"
-LOCAL_CROSS_COMPILE="$ANDROID_TOP_DIR/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-"
-KERNEL_CONFIG_FILE="rockchip_defconfig"
+KERNEL_OUT_DIR="$ANDROID_TOP_DIR/out/target/product/rk3399_firefly_box/obj/KERNEL"
+LOCAL_CROSS_COMPILE="$ANDROID_TOP_DIR/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-android-"
+KERNEL_CONFIG_FILE="firefly_defconfig"
 
 make_menuconfig()
 {
 	# generate dot config file if not exist
 	if [ ! -f $KERNEL_OUT_DIR/.config ]
 	then
-		make -C $KERNEL_TOP_DIR ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR $KERNEL_CONFIG_FILE
+		make -C $KERNEL_TOP_DIR ARCH=arm64 CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR $KERNEL_CONFIG_FILE
 	fi
 
 	# make menuconfig
-	make -C $KERNEL_TOP_DIR ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR menuconfig
+	make -C $KERNEL_TOP_DIR ARCH=arm64 CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR menuconfig
 }
 
 make_savedefconfig()
 {
 	# make savedefconfig
-	make -C $KERNEL_TOP_DIR ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR savedefconfig
+	make -C $KERNEL_TOP_DIR ARCH=arm64 CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$KERNEL_OUT_DIR savedefconfig
 }
 
 # Usage

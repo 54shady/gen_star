@@ -1,15 +1,16 @@
 #!/bin/bash
+# run this script on the android source code top dir
 
-ANDROID_TOP_DIR="/home/zeroway/3288/51/src/3288_5.1_v2"
-ANDROID_OUT_DIR="$ANDROID_TOP_DIR/out/target/product/rk3288"
-IMAGE_PATH="$ANDROID_TOP_DIR/rockdev/Image-rk3288"
+ANDROID_TOP_DIR=$PWD
+ANDROID_OUT_DIR="$ANDROID_TOP_DIR/out/target/product/rk3399_firefly_box"
+IMAGE_PATH="$ANDROID_TOP_DIR/rockdev/Image-rk3399_firefly_box/"
 RAMDISK_IMG="ramdisk.img"
 BOOT_IMG="boot.img"
 
 # utils
 MKBOOTFS="$ANDROID_TOP_DIR/out/host/linux-x86/bin/mkbootfs"
 RK_MKKRNLIMG="$ANDROID_TOP_DIR/rkst/mkkrnlimg"
-
-$MKBOOTFS $ANDROID_OUT_DIR/root | minigzip > $ANDROID_OUT_DIR/$RAMDISK_IMG && \
-	truncate -s "%4" $OUT/$RAMDISK_IMG && \
-$RK_MKKRNLIMG $OUT/$RAMDISK_IMG $IMAGE_PATH/$BOOT_IMG >/dev/null
+MINIGZIP="$ANDROID_TOP_DIR/out/host/linux-x86/bin/minigzip"
+$MKBOOTFS $ANDROID_OUT_DIR/root | $MINIGZIP > $ANDROID_OUT_DIR/$RAMDISK_IMG && \
+	truncate -s "%4" $ANDROID_OUT_DIR/$RAMDISK_IMG && \
+$RK_MKKRNLIMG $ANDROID_OUT_DIR/$RAMDISK_IMG $IMAGE_PATH/$BOOT_IMG >/dev/null
