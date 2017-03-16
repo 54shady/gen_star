@@ -1,0 +1,35 @@
+# global variable
+# run this script on the android source code top dir
+
+# marco
+ANDROID_TOP_DIR=$PWD
+UBOOT_TOP_DIR="$ANDROID_TOP_DIR/u-boot"
+UBOOT_OUT_DIR="$ANDROID_TOP_DIR/out/target/product/rk3399_firefly_box/obj/UBOOT"
+LOCAL_CROSS_COMPILE="$ANDROID_TOP_DIR/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-android-"
+BUILD_JOBS="-j8"
+
+# suck things
+RK_TOOLS="$UBOOT_TOP_DIR/tools/rk_tools"
+
+# do compile for rk3399
+genu_rk3399()
+{
+	# local variable
+	KERNEL_CONFIG_FILE="rk3399_box_defconfig"
+
+	# okay, it's time to do the real thing
+	# generate dot config file if not exist
+	if [ ! -f $UBOOT_OUT_DIR/.config ]
+	then
+		make -C $UBOOT_TOP_DIR ARCHV=aarch64 CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$UBOOT_OUT_DIR $KERNEL_CONFIG_FILE
+	fi
+
+	mkdir -p $UBOOT_OUT_DIR/tools
+	cp -rvdf $RK_TOOLS $UBOOT_OUT_DIR/tools/
+
+	# make uboot
+	make -C $UBOOT_TOP_DIR ARCHV=aarch64 CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$UBOOT_OUT_DIR $KERNEL_TARGET_IMAGE $BUILD_JOBS
+}
+
+# let's get things done
+genu_rk3399

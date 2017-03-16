@@ -3,6 +3,7 @@
 # marco
 ANDROID_TOP_DIR="/home/zeroway/rk3399/src"
 KERNEL_OUT_DIR="$ANDROID_TOP_DIR/out/target/product/rk3399_firefly_box/obj/KERNEL"
+UBOOT_OUT_DIR="$ANDROID_TOP_DIR/out/target/product/rk3399_firefly_box/obj/UBOOT"
 
 # update.img out dir
 UPDATES_GEN_DIR="/home/zeroway/rk3399/bsp/updates"
@@ -42,11 +43,11 @@ make_update_3399()
 	TARGET_SYSTEM_IMG="$ANDROID_TOP_DIR/rockdev/Image-rk3399_firefly_box/system.img"
 	TARGET_BOOT_IMG="$ANDROID_TOP_DIR/rockdev/Image-rk3399_firefly_box/boot.img"
 	TARGET_MISC_IMG="$ANDROID_TOP_DIR/rockdev/Image-rk3399_firefly_box/misc.img"
-	TARGET_TRUST_IMG="$ANDROID_TOP_DIR/u-boot/trust.img"
+	TARGET_TRUST_IMG="$UBOOT_OUT_DIR/trust.img"
 	TARGET_PACKAGE_FILE="$UPDATES_GEN_DIR/package-file"
 	TARGET_PARAMETER_FILE="$UPDATES_GEN_DIR/parameter.txt"
-	TARGET_UBOOT_IMG="$ANDROID_TOP_DIR/u-boot/uboot.img"
-	TARGET_BOOTLOADER_IMG="$ANDROID_TOP_DIR/u-boot/RK3399MiniLoaderAll_V1.05.bin"
+	TARGET_UBOOT_IMG="$UBOOT_OUT_DIR/uboot.img"
+	TARGET_BOOTLOADER_IMG="$UBOOT_OUT_DIR/RK3399MiniLoaderAll_V1.05.bin"
 	target_imgs=(
 		$TARGET_KERNEL_IMG
 		$TARGET_RESOURCE_IMG
