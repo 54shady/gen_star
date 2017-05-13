@@ -11,6 +11,8 @@ BOOT_IMG="boot.img"
 MKBOOTFS="$ANDROID_TOP_DIR/out/host/linux-x86/bin/mkbootfs"
 RK_MKKRNLIMG="$ANDROID_TOP_DIR/rkst/mkkrnlimg"
 MINIGZIP="$ANDROID_TOP_DIR/out/host/linux-x86/bin/minigzip"
+
+echo "Creating boot.img..."
 $MKBOOTFS $ANDROID_OUT_DIR/root | $MINIGZIP > $ANDROID_OUT_DIR/$RAMDISK_IMG && \
 	truncate -s "%4" $ANDROID_OUT_DIR/$RAMDISK_IMG && \
 $RK_MKKRNLIMG $ANDROID_OUT_DIR/$RAMDISK_IMG $IMAGE_PATH/$BOOT_IMG >/dev/null

@@ -6,7 +6,8 @@
 - genr generate ramdisk image
 - genb generate boot image
 - genu generate uboot image
-- genupdate generate update image
+- genupdate generate update image for android
+- genupdate -l generate update image for linux
 
 # 最新genc已经需要带参数操作具体操作如下
 

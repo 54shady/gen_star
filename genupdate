@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # marco
-ANDROID_TOP_DIR="/home/zeroway/rk3399/src"
+ANDROID_TOP_DIR="/home/zeroway/rk3399/src/firefly"
 KERNEL_OUT_DIR="$ANDROID_TOP_DIR/out/target/product/rk3399_firefly_box/obj/KERNEL"
 UBOOT_OUT_DIR="$ANDROID_TOP_DIR/out/target/product/rk3399_firefly_box/obj/UBOOT"
 
@@ -13,9 +13,13 @@ CURRENT_DATE=`date +%Y%m%d`
 # pack images
 pack_images()
 {
-	cp $TARGET_PARAMETER_FILE $UPDATES_GEN_DIR/Image/
-	$UPDATES_GEN_DIR/afptool -pack $UPDATES_GEN_DIR/ $UPDATES_GEN_DIR/Image/update.img || pause
-	$UPDATES_GEN_DIR/rkImageMaker $PLATFORM $TARGET_BOOTLOADER_IMG $UPDATES_GEN_DIR/Image/update.img "update_${SOC_NAME}_${ANDROID_VERSION}_${CURRENT_DATE}_linux.img" -os_type:androidos || pause
+	echo "pack update_$1.img..."
+	ln -s $TARGET_PARAMETER_FILE $UPDATES_GEN_DIR/Image/parameter
+	ln -s $TARGET_PACKAGE_FILE $UPDATES_GEN_DIR/package-file
+	$UPDATES_GEN_DIR/afptool -pack $UPDATES_GEN_DIR/ $UPDATES_GEN_DIR/Image/temp.img || return 1;
+	$UPDATES_GEN_DIR/rkImageMaker $PLATFORM $TARGET_BOOTLOADER_IMG $UPDATES_GEN_DIR/Image/temp.img "update_${SOC_NAME}_${OS_VERSION}_${CURRENT_DATE}.img" -os_type:androidos || return 1;
+	rm -fr $UPDATES_GEN_DIR/temp.img || return 1;
+
 }
 
 # make links
@@ -24,6 +28,8 @@ make_links()
 	# clean the Image directory
 	rm -rvf $UPDATES_GEN_DIR/Image
 	mkdir -p $UPDATES_GEN_DIR/Image
+	rm -rvf $UPDATES_GEN_DIR/parameter
+	rm -rvf $UPDATES_GEN_DIR/package-file
 
 	# make links files to target
 	cd $UPDATES_GEN_DIR/Image/
@@ -36,6 +42,7 @@ make_links()
 
 make_update_3399()
 {
+	echo "make update_$1.img..."
 	# 3399 target images
 	TARGET_KERNEL_IMG="$KERNEL_OUT_DIR/kernel.img"
 	TARGET_RESOURCE_IMG="$KERNEL_OUT_DIR/resource.img"
@@ -44,8 +51,16 @@ make_update_3399()
 	TARGET_BOOT_IMG="$ANDROID_TOP_DIR/rockdev/Image-rk3399_firefly_box/boot.img"
 	TARGET_MISC_IMG="$ANDROID_TOP_DIR/rockdev/Image-rk3399_firefly_box/misc.img"
 	TARGET_TRUST_IMG="$UBOOT_OUT_DIR/trust.img"
-	TARGET_PACKAGE_FILE="$UPDATES_GEN_DIR/package-file"
-	TARGET_PARAMETER_FILE="$UPDATES_GEN_DIR/parameter.txt"
+	if [ $1 = "linux" ]
+	then
+		TARGET_PACKAGE_FILE="$UPDATES_GEN_DIR/package-file_linux"
+		TARGET_PARAMETER_FILE="$UPDATES_GEN_DIR/parameter_linux"
+		TARGET_LINUX_BOOT="/home/zeroway/rk3399/bsp/linuxboot/linux_boot.img"
+		TARGET_LINUX_ROOTFS="/home/zeroway/rk3399/bsp/ubuntu/linuxroot.img"
+	else
+		TARGET_PACKAGE_FILE="$UPDATES_GEN_DIR/package-file_android"
+		TARGET_PARAMETER_FILE="$UPDATES_GEN_DIR/parameter_android"
+	fi
 	TARGET_UBOOT_IMG="$UBOOT_OUT_DIR/uboot.img"
 	TARGET_BOOTLOADER_IMG="$UBOOT_OUT_DIR/RK3399MiniLoaderAll_V1.05.bin"
 	target_imgs=(
@@ -58,16 +73,32 @@ make_update_3399()
 		$TARGET_TRUST_IMG
 		$TARGET_UBOOT_IMG
 		$TARGET_BOOTLOADER_IMG
+	#	$TARGET_PACKAGE_FILE
+	#	$TARGET_PARAMETER_FILE
+		$TARGET_LINUX_BOOT
+		$TARGET_LINUX_ROOTFS
 	)
 
 	# make links for the metadata
 	make_links
 
-	echo "make 3399 6.0 update.img"
 	PLATFORM="-RK330C"
 	SOC_NAME="3399"
-	ANDROID_VERSION="6.0"
-	pack_images
+	if [ $1 = "linux" ]
+	then
+		OS_VERSION="linux"
+	else
+		OS_VERSION="android6.0"
+	fi
+	pack_images $1
 }
 
-make_update_3399
+# Usage
+# default generate update_android.img
+# genupdate -l generate update_linux.img
+if [ "$1" = "-l" ]
+then
+	make_update_3399 linux
+else
+	make_update_3399 android
+fi
