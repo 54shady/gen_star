@@ -8,6 +8,9 @@ UBOOT_OUT_DIR="$ANDROID_TOP_DIR/out/target/product/rk3399_firefly_box/obj/UBOOT"
 # update.img out dir
 UPDATES_GEN_DIR="/home/zeroway/rk3399/bsp/updates"
 
+# dir content parameter file
+LOCAL_PARAMETER_FILE="/home/zeroway/github/kernel_drivers_examples"
+
 CURRENT_DATE=`date +%Y%m%d`
 
 # pack images
@@ -54,12 +57,12 @@ make_update_3399()
 	if [ $1 = "linux" ]
 	then
 		TARGET_PACKAGE_FILE="$UPDATES_GEN_DIR/package-file_linux"
-		TARGET_PARAMETER_FILE="$UPDATES_GEN_DIR/parameter_linux"
+		TARGET_PARAMETER_FILE="$LOCAL_PARAMETER_FILE/parameter_linux"
 		TARGET_LINUX_BOOT="/home/zeroway/rk3399/bsp/linuxboot/linux_boot.img"
 		TARGET_LINUX_ROOTFS="/home/zeroway/rk3399/bsp/ubuntu/linuxroot.img"
 	else
 		TARGET_PACKAGE_FILE="$UPDATES_GEN_DIR/package-file_android"
-		TARGET_PARAMETER_FILE="$UPDATES_GEN_DIR/parameter_android"
+		TARGET_PARAMETER_FILE="$LOCAL_PARAMETER_FILE/parameter_android"
 	fi
 	TARGET_UBOOT_IMG="$UBOOT_OUT_DIR/uboot.img"
 	TARGET_BOOTLOADER_IMG="$UBOOT_OUT_DIR/RK3399MiniLoaderAll_V1.05.bin"
