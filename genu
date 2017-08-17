@@ -25,7 +25,7 @@ genu_rk3288()
 	fi
 
 	mkdir -p $UBOOT_OUT_DIR/tools
-	cp -rvdf $RK_TOOLS $UBOOT_OUT_DIR/tools/
+	cp -rdf $RK_TOOLS $UBOOT_OUT_DIR/tools/
 
 	# make uboot
 	make -C $UBOOT_TOP_DIR ARCH=arm CROSS_COMPILE=$LOCAL_CROSS_COMPILE O=$UBOOT_OUT_DIR $KERNEL_TARGET_IMAGE $BUILD_JOBS
